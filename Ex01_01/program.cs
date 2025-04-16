@@ -11,6 +11,58 @@ namespace Ex01_01
     {
         static void Main()
         {
+            Console.Write("Enter tree height (1 to 15): ");
+            int height = int.Parse(Console.ReadLine());
+            if (height < 1 || height > 15)
+            {
+                Console.WriteLine("Invalid height!");
+                return;
+            }
+
+            char rowLetter = 'A';
+            int currentDigit = 1;
+            int trunkDigit = 1;
+
+            // Width of the widest number line (the triangle base)
+            int triangleRows = height - 2;
+            int maxWidth = triangleRows * 2 - 1;
+
+            for (int i = 0; i < height; i++)
+            {
+                Console.Write($"{rowLetter}   ");
+
+                if (i >= height - 2) // Trunk rows
+                {
+                    int spacesBefore = (maxWidth - 1) / 2;
+                    Console.Write(new string(' ', spacesBefore));
+                    Console.WriteLine($"|{trunkDigit}|");
+                }
+                else
+                {
+                    int numbersInRow = i * 2 + 1;
+                    int spacesBefore = (maxWidth - numbersInRow) / 2;
+
+                    // Special case for row A — move it one step right
+                    if (i == 0)
+                        spacesBefore += 1;
+
+                    Console.Write(new string(' ', spacesBefore));
+                    for (int j = 0; j < numbersInRow; j++)
+                    {
+                        Console.Write($"{currentDigit}");
+                        if (j < numbersInRow - 1)
+                            Console.Write(" ");
+                        currentDigit = currentDigit % 9 + 1;
+                    }
+                    Console.WriteLine();
+
+                    trunkDigit = currentDigit; // Save next digit for trunk
+                }
+
+                rowLetter++;
+            }
+
+
             int numOfBinaryNumbers = 4;
             int[] binaryArr, decimalArr;
 
@@ -19,6 +71,9 @@ namespace Ex01_01
             printDecimalInDescending(decimalArr);
             printAverage(decimalArr);
             findLongestSequenceOfOnes(binaryArr);
+            PrintSwitchCounts(binaryArr);
+            PrintNumberWithMostOnes(binaryArr);
+            PrintTotalOnes(binaryArr);
         }
 
         private static int[] requestInputFromUser(int i_numOfBinaryNumbers)
@@ -106,14 +161,14 @@ namespace Ex01_01
             int maxStreak = 0;
             int numberWithMaxStreak = 0;
 
-            foreach (int num in i_binaryArr)
+            foreach (int currentNumInArray in i_binaryArr)
             {
-                int n = num;
+                int copyOfCurrentNumInArray = currentNumInArray;
                 int currentStreak = 0;
 
-                while (n > 0)
+                while (copyOfCurrentNumInArray > 0)
                 {
-                    int digit = n % 10;
+                    int digit = copyOfCurrentNumInArray % 10;
                     if (digit == 1)
                     {
                         currentStreak++;
@@ -123,13 +178,13 @@ namespace Ex01_01
                     {
                         currentStreak = 0;
                     }
-                    n /= 10;
+                    copyOfCurrentNumInArray /= 10;
                 }
 
                 if (currentStreak > maxStreak)
                 {
                     maxStreak = currentStreak;
-                    numberWithMaxStreak = num;
+                    numberWithMaxStreak = currentNumInArray;
                 }
             }
             Console.WriteLine($"Longest streak of 1s: {maxStreak}");
@@ -142,8 +197,62 @@ namespace Ex01_01
                     Console.Write("0");
                 }
             }
-            Console.Write(numberWithMaxStreak);
+            Console.WriteLine(numberWithMaxStreak);
 
+        }
+        private static void PrintSwitchCounts(int[] i_binaryNumbers)
+        {
+            foreach (int currentNumInArray in i_binaryNumbers)
+            {
+                int switches = 0;
+                string binaryStr = currentNumInArray.ToString().PadLeft(7, '0');
+
+                for (int i = 1; i < binaryStr.Length; i++)
+                    if (binaryStr[i] != binaryStr[i - 1])
+                        switches++;     
+
+                Console.WriteLine($"{binaryStr} -> {switches}");
+            }
+        }
+        private static void PrintNumberWithMostOnes(int[] i_binaryNumbers)
+        {
+            int maxOnes = -1;
+            int numberWithMostOnes = 0;
+
+            foreach (int currentNumInArray in i_binaryNumbers)
+            {
+                string binaryStr = currentNumInArray.ToString().PadLeft(7, '0');
+                int countOnes = 0;
+
+                foreach (char currentCharacter in binaryStr)
+                    if (currentCharacter == '1') countOnes++;
+
+                if (countOnes > maxOnes)
+                {
+                    maxOnes = countOnes;
+                    numberWithMostOnes = currentNumInArray;
+                }
+            }
+
+            string formatted = numberWithMostOnes.ToString().PadLeft(7, '0');
+            Console.WriteLine($"The number with the most '1's is: {formatted} ({maxOnes} ones)");
+        }
+        private static void PrintTotalOnes(int[] i_binaryNumbers)
+        {
+            int totalOnes = 0;
+
+            foreach (int currentNumInArray in i_binaryNumbers)
+            {
+                string binaryStr = currentNumInArray.ToString().PadLeft(7, '0');
+
+                foreach (char currentCharacter in binaryStr)
+                {
+                    if (currentCharacter == '1')
+                        totalOnes++;
+                }
+            }
+
+            Console.WriteLine("Total number of '1's in all 4 binary numbers: " + totalOnes);
         }
     }
 }
